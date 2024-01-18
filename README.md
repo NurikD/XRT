@@ -1,17 +1,42 @@
-# Aiogram Template
-This is template for telegram bots by aiogram
+## 
 
-## **How to use🤔 (use todo)**
-1. [**Setup environment variables**](https://stackoverflow.com/questions/42708389/how-to-set-environment-variables-in-pycharm)
-   - [TOKEN](https://telegram.me/BotFather)
-2. [**Setup handlers**](bot/handlers)
-   - [Admin](bot/handlers/admin/panel.py)
-   - [User](bot/handlers/user/register/main_register.py)
-   - [Other](bot/handlers/other.py)
-3. [**Database**]()
-   - [setup engine](bot/database/main.py)
-   - [register models](bot/database/models/main.py)
-4. [Remove echo example](bot/handlers/other.py)
-5. Run [run.py](run.py)
+# Необходима версия python: 3.11
 
-### To understand the architecture of this structure, watch this [VIDEO](https://www.youtube.com/watch?v=W-0YoEYBSwU&t=23s)
+## Описание
+
+Асинхронный бот для отлова заявок Ростелеком
+<hr>
+
+## Установка
+
+1. Устанавливаем виртуальное окружение 
+   ```
+   python3 -m venv venv
+   ```
+
+2. Активируем виртуальное окружение
+   
+   Windows
+   ```
+   .\venv\Scripts\activate
+   ```
+
+   Linux/WSL
+   ```
+   source venv/bin/activate
+   ```
+
+3. Устанавливаем зависимости
+
+   ```
+   pip install -r requirements.txt
+   ```
+
+4. Запускаем скрипт
+   ```
+   python run.py
+   ```
+
+## ОШИБКИ
+
+Иногда возникают ошибки с бд, лечение перезапуск - бота.
