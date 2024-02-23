@@ -1,7 +1,7 @@
 from aiogram import F, Router
 from aiogram.utils.markdown import hide_link
 from aiogram.filters import Command
-
+from aiogram import types
 from bot.database.methods.update import latest_activity
 
 from bot.keyboards.user.reply import *

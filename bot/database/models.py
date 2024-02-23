@@ -42,20 +42,6 @@ async def create_data_array() -> None:
     print('[INFO] Table - {data_table} created successfully')
 
 
-async def create_roles() -> None:
-    """Пользовательские роли"""
-    connection = await connect_pg()
-    async with connection.transaction():
-        await connection.execute("""
-            CREATE TABLE IF NOT EXISTS roles (
-                id serial PRIMARY KEY,
-                role_name varchar (30)
-            );
-            """)
-
-    print('[INFO] Table - {roles} created successfully')
-
-
 async def create_users() -> None:
     """Основная информация о пользователе"""
     connection = await connect_pg()
@@ -64,8 +50,7 @@ async def create_users() -> None:
             CREATE TABLE IF NOT EXISTS users (
                 user_id bigint UNIQUE,
                 nickname varchar (32),
-                full_name varchar (64),
-                fk_role int REFERENCES roles(id),
+                phone_number varchar (16),
                 login varchar (32),
                 email varchar (64),
                 plots varchar,

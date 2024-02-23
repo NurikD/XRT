@@ -13,7 +13,7 @@ router = Router()
 
 # Этап отправки проверочного письма #
 
-@router.message(Form.taking_email, F.text.contains('rt.ru'))
+@router.message(Form.taking_email, F.text.contains('gmail.com'))
 async def email_taken(message: Message, state: FSMContext) -> None:
     user_data = await state.get_data()
     data = {

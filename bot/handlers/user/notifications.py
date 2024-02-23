@@ -1,16 +1,14 @@
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
 from aiogram.utils.markdown import hide_link
-
+from aiogram import types
 from bot.database.methods.update import set_notice_mode, disable_all_notice, latest_activity
-from bot.database.methods.get import dispatcher_exists, get_user_role
 from bot.database.methods.get import notifications_exists
 
 from bot.handlers.user.utils import deadline_message
 
 from bot.keyboards.user.reply import *
 from bot.keyboards.user.inline import *
-
 
 router = Router()
 
@@ -19,16 +17,16 @@ router = Router()
 
 @router.message(F.text == '🔔Уведомления')
 async def notice_modes(message: types.Message):
-    user_role = await get_user_role(message.from_user.id)
-    await message.answer(text=f"{hide_link('https://telegra.ph/file/4c3eec48f6538e097ba9e.png')}"
-                              "Выберите способ отправки уведомлений, нажав на соответсвующую кнопку ниже 👇",
-                         reply_markup=notifications_settings(user_role))
+    await message.answer(
+        text=f"{hide_link('https://telegra.ph/file/4c3eec48f6538e097ba9e.png')}"
+             "Выберите способ отправки уведомлений, нажав на соответсвующую кнопку ниже 👇",
+        reply_markup=notifications_settings()  # Убрал передачу роли
+    )
 
     await latest_activity(message.from_user.id)  # Записывает время активности
 
 
 # Настройка уведомлений для бота #
-
 
 @router.callback_query(F.data == 'notice_in_bot')
 async def bot_mode(call: CallbackQuery):
@@ -45,22 +43,19 @@ async def bot_mode(call: CallbackQuery):
 
 # Настройка уведомлений для почты #
 
-
 @router.callback_query(F.data == 'notice_in_mail')
 async def mail_mode(call: CallbackQuery):
     if await deadline_message(call) is False:
-        if await dispatcher_exists(call.from_user.id) is True:
-            notifications = await notifications_exists(call.from_user.id)
-            await call.message.edit_text(
-                text="Выберите режим отправки уведомлений для почты: ",
-                reply_markup=notice_selection_options(notifications, 'email')
-            )
+        notifications = await notifications_exists(call.from_user.id)
+        await call.message.edit_text(
+            text="Выберите режим отправки уведомлений для почты: ",
+            reply_markup=notice_selection_options(notifications, 'email')
+        )
 
     await call.answer()
 
 
 # Ловим выбранный режим и заносим его в БД #
-
 
 @router.callback_query(F.data.startswith('set_'))
 async def set_mode(call: CallbackQuery):
@@ -80,22 +75,19 @@ async def set_mode(call: CallbackQuery):
 
 # Кнопка назад возвращает в меню выбора уведомлений #
 
-
 @router.callback_query(F.data.startswith('back_'))
 async def back_to_main(call: CallbackQuery):
-    user_role = await get_user_role(call.from_user.id)
     if await deadline_message(call) is False:
         await call.message.edit_text(
             text=f"{hide_link('https://telegra.ph/file/4c3eec48f6538e097ba9e.png')}"
                  "Выберите способ отправки уведомлений, нажав на соответсвующую кнопку ниже 👇",
-            reply_markup=notifications_settings(user_role)
+            reply_markup=notifications_settings()  # Убрал передачу роли
         )
 
     await call.answer()
 
 
 # Отключает полностью уведомления для бота/почты #
-
 
 @router.callback_query(F.data.startswith('disable'))
 async def disable_notifications(call: CallbackQuery):

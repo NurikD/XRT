@@ -15,7 +15,7 @@ from bot.handlers.user.utils import sender_notice
 from bot.handlers.admin import panel
 
 from bot.database.models import *
-from bot.database.methods.insert import add_roles_name, add_statuses_name
+from bot.database.methods.insert import add_statuses_name
 
 from .misc.commands import set_commands
 
@@ -24,8 +24,6 @@ async def start_db() -> None:
     await create_statuses()
     await add_statuses_name()
     await create_data_array()
-    await create_roles()
-    await add_roles_name()
     await create_users()
     await create_notification_modes()
 

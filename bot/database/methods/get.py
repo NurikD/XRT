@@ -4,7 +4,6 @@ from os import path
 import pandas as pd
 
 from bot.database.main import connect_pg
-from bot.misc.const import AVAILABLE_ROLES
 
 
 # POSTGRESQL
@@ -19,32 +18,6 @@ async def user_exists(user_id: int) -> bool:
     if user_is_reg:
         return True
     return False
-
-
-# НУЖНА МИГРАЦИЯ С dispatcher_exists на get_user_role
-
-async def dispatcher_exists(user_id: int) -> bool:
-    """Проверяем принадлежность пользователя к роли Диспетчер"""
-    connection = await connect_pg()
-    user_is_dispatcher = await connection.fetchval(
-        """SELECT fk_role FROM users WHERE user_id = $1""", user_id
-    )
-
-    if user_is_dispatcher is AVAILABLE_ROLES['Диспетчер']:
-        return True
-    return False
-
-
-async def get_user_role(user_id: int) -> str:
-    """Получить роль пользователя"""
-    connection = await connect_pg()
-    user_role = await connection.fetchval(
-        """SELECT roles.role_name FROM users INNER JOIN roles 
-        ON roles.id=users.fk_role WHERE users.user_id = $1""",
-        user_id
-    )
-
-    return user_role
 
 
 async def get_user_mail(user_id: int) -> str:
@@ -163,5 +136,16 @@ async def get_notifications_info():
         """)
 
         return notices
+
+
+# получаем данные о логине с БД #
+async def get_argus_login(user_id: int) -> str:
+    """Получить логин Аргуса пользователя"""
+    connection = await connect_pg()
+    argus_login = await connection.fetchval(
+        """SELECT login FROM users WHERE user_id = $1""", user_id
+    )
+
+    return argus_login
 
 # ORACLE DB

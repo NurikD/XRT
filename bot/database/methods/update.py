@@ -128,7 +128,7 @@ async def disable_all_notice(user_id: int, notification_key: str) -> None:
 
 
 async def change_user_email(user_id: int, email: str) -> None:
-    """Изменяет почту пользователя, если он Диспетчер"""
+    """Изменяет почту пользователя"""
     connection = await connect_pg()
     async with connection.transaction():
         await connection.execute(
@@ -137,21 +137,14 @@ async def change_user_email(user_id: int, email: str) -> None:
         )
 
 
-async def changer_role(**kwargs) -> None:
-    """Меняет роль пользователя"""
+# функция добавления Логина Аргуса в БД
+async def update_argus_login(user_id: int, login: str) -> None:
     connection = await connect_pg()
     async with connection.transaction():
-        if kwargs['change_role'] == 'to_executor':
-            await connection.execute(
-                """UPDATE users SET fk_role = 2, login = $1, email = NULL, plots = $2 WHERE user_id = $3""",
-                kwargs['login'], ', '.join(kwargs.get('plots', [])), kwargs['user_id']
-            )
-
-        elif kwargs['change_role'] == 'to_dispatcher':
-            await connection.execute(
-                """UPDATE users SET fk_role = 1, login = NULL, email = $1, plots = NULL WHERE user_id = $2""",
-                kwargs['email'], kwargs['user_id']
-            )
+        await connection.execute(
+            """UPDATE users SET login = $1 WHERE user_id = $2""",
+            login, user_id
+        )
 
 
 async def latest_activity(user_id: int) -> None:
