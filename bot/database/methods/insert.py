@@ -28,6 +28,27 @@ async def add_statuses_name() -> None:
         print('[INFO] Insert data from func - {add_statuses_name} successfully')
 
 
+async def add_roles_name() -> None:
+    """Добавляет роли в таблицу при первом запуске бота"""
+    connection = await connect_pg()
+
+    # Проверяем наличие данных в таблице
+    rows = await connection.fetch(
+        """SELECT role_name FROM roles"""
+    )
+
+    if not rows:
+        async with connection.transaction():
+            await connection.execute(
+                """INSERT INTO roles (role_name) VALUES ($1)""", 'Диспетчер'
+            )
+            await connection.execute(
+                """INSERT INTO roles (role_name) VALUES ($1)""", 'Исполнитель'
+            )
+
+            print('[INFO] Insert data from func - {add_roles_name} successfully')
+
+
 async def add_new_user(**kwargs) -> None:
     """Добавляет нового пользователя в таблицу users,
     если его не существует"""

@@ -2,10 +2,13 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardMarkup, InlineKeyboardBuilder
 
 
-def notifications_settings() -> InlineKeyboardMarkup:
+def notifications_settings(role) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
     builder.add(InlineKeyboardButton(text='В боте', callback_data='notice_in_bot'))
+    if role == 'Диспетчер':
+        builder.add(InlineKeyboardButton(text='На почте', callback_data='notice_in_mail'))
+
     builder.adjust()
 
     return builder.as_markup()
@@ -26,6 +29,20 @@ def btn_change_email() -> InlineKeyboardMarkup:
     )
 
     return keyboard
+
+
+def btn_change_role(role) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    text = '👤Сменить роль'
+    if role == 'Диспетчер':
+        builder.add(InlineKeyboardButton(text=text, callback_data='change_dispatcher_to_executor'))
+    elif role == 'Исполнитель':
+        builder.add(InlineKeyboardButton(text=text, callback_data='change_executor_to_dispatcher'))
+
+    builder.adjust()
+
+    return builder.as_markup()
 
 
 def btn_notifications_back() -> InlineKeyboardMarkup:

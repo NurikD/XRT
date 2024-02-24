@@ -128,24 +128,13 @@ async def disable_all_notice(user_id: int, notification_key: str) -> None:
 
 
 async def change_user_email(user_id: int, email: str) -> None:
-    """Изменяет почту пользователя"""
+    """Изменяет почту пользователя, если он Диспетчер"""
     connection = await connect_pg()
     async with connection.transaction():
         await connection.execute(
             """UPDATE users SET email = $1 WHERE user_id = $2""",
             email, user_id
         )
-
-
-# функция добавления Логина Аргуса в БД
-async def update_argus_login(user_id: int, login: str) -> None:
-    connection = await connect_pg()
-    async with connection.transaction():
-        await connection.execute(
-            """UPDATE users SET login = $1 WHERE user_id = $2""",
-            login, user_id
-        )
-
 
 async def latest_activity(user_id: int) -> None:
     connection = await connect_pg()
@@ -169,4 +158,14 @@ async def change_array(data) -> None:
             """,
             data['WORKSITE_SHORT_NAME'], data['ASSIGNEE_NAME'],
             data.get('CLOSE_KI'), data['CRM']
+        )
+
+
+# функция добавления Логина Аргуса в БД
+async def update_argus_login(user_id: int, login: str) -> None:
+    connection = await connect_pg()
+    async with connection.transaction():
+        await connection.execute(
+            """UPDATE users SET login = $1 WHERE user_id = $2""",
+            login, user_id
         )

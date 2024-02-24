@@ -1,15 +1,18 @@
-from aiogram import Router, F
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from aiogram import F, Router
+from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
-from bot.database.methods.insert import add_new_user
+
 from bot.database.methods.update import change_user_email
+from bot.database.methods.insert import add_new_user
+
 from bot.keyboards.user.reply import *
 from .fsm_states import Form
+
 
 router = Router()
 
 
-# Этап заполнения ФИО и запроса email #
+# Этап заполнения контакта #
 
 async def start_user_register(message: Message, state: FSMContext) -> None:
     button = KeyboardButton(text="Отправить контакт", request_contact=True)
@@ -24,10 +27,12 @@ async def start_user_register(message: Message, state: FSMContext) -> None:
     await state.set_state(Form.taking_phone_number)
 
 
+# Запрос email пользователя #
+
 async def email_checking_code(message: Message, state: FSMContext):
     user_id = message.from_user.id
     user_data = await state.get_data()
-    await state.update_data(user_id=user_id)  # Обновите данные состояния
+    await state.update_data(user_id=user_id)
     await save_user_data(message, user_data)
 
 
@@ -47,11 +52,9 @@ async def phone_number_taken(message: Message, state: FSMContext):
     await state.set_state(Form.taking_email)
 
 
-# Запрос email #
-
 async def save_user_data(message: Message, user_data):
     user_id = message.from_user.id
-    nickname = message.from_user.username or 'No nickname'   # Замените на значение по умолчанию или обработку ошибки
+    nickname = message.from_user.username or 'No nickname'
 
     if user_data.get('change_email'):
         await change_user_email(user_id, user_data['email'])

@@ -4,6 +4,7 @@ from os import path
 import pandas as pd
 
 from bot.database.main import connect_pg
+from bot.misc.const import AVAILABLE_ROLES
 
 
 # POSTGRESQL
@@ -18,6 +19,7 @@ async def user_exists(user_id: int) -> bool:
     if user_is_reg:
         return True
     return False
+
 
 
 async def get_user_mail(user_id: int) -> str:

@@ -1,5 +1,22 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram import types
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
+
+
+def get_roles() -> ReplyKeyboardMarkup:
+    kb = [
+        [
+            KeyboardButton(text='Диспетчер'),
+            KeyboardButton(text='Исполнитель')
+        ],
+    ]
+
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True
+    )
+
+    return keyboard
 
 
 def main_menu() -> ReplyKeyboardMarkup:

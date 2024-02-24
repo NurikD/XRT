@@ -1,72 +1,49 @@
 from aiogram import F, Router
-from aiogram.types import CallbackQuery, Message, FSInputFile
-from aiogram.fsm.context import FSMContext
-from aiogram.utils.markdown import hide_link
-from bot.database.methods.get import get_argus_login
-from bot.database.methods.update import latest_activity, update_argus_login
-
+from aiogram.types import CallbackQuery
+from aiogram.types import Message, FSInputFile
+from bot.database.methods.update import latest_activity
 from bot.handlers.user.utils import deadline_message
-from bot.handlers.user.register.fsm_states import Form
-
 from bot.keyboards.user.reply import *
 from bot.keyboards.user.inline import *
+
+from bot.app.array_filter import convert_to_excel
 
 router = Router()
 
 # Глобальные переменные для хранения file_path и counted_apps
 global file_path, counted_apps
 
-# Вывод функций, которые может изменить пользователь #
 
-@router.message(F.text == '💻Личный кабинет')
-async def settings(message: Message):
-    await message.answer(
-        text=f"{hide_link('https://telegra.ph/file/2e8bf0a6bd744d44231bc.png')}"
-             "В данном разделе, вы можете изменить существующий адрес электронной почты на новый. "
-             "Нажмите на параметр ниже, который хотите изменить 👇",
-        reply_markup=settings_menu())
+# Вывод всех заявок #
 
-    await latest_activity(message.from_user.id)
+@router.message(F.text == '📥Все')
+async def all_requests(message: types.Message):
+    await send_document_by_request('all', message)
+
+    await latest_activity(message.from_user.id)  # Записывает время активности
 
 
-@router.message(F.text == '🏘Участки')
-async def plots(message: Message):
-    await message.answer("<i>Функция в режиме апробации...</i>⏰")
+# Вывод заявок без исполнителя #
+
+@router.message(F.text == '📤Без исполнителя')
+async def non_executor_requests(message: Message):
+    await send_document_by_request('non_executor', message)
+
+    await latest_activity(message.from_user.id)  # Записывает время активности
 
 
-# Добавление логина Аргуса в БД
-@router.message(F.text == 'Логин Аргус')
-async def argus_login(message: Message):
-    await message.answer("Введите свой логин АРГУС:")
-
-
-@router.message(F.text.lower())
-async def argus_login_command(message: Message, state: FSMContext):
+async def send_document_by_request(request_type, message: Message) -> None:
+    global file_path, counted_apps
     try:
-        login = message.text.strip()
+        file_path, counted_apps = await convert_to_excel(request_type)
+        generated_file = FSInputFile(file_path)
 
-        # Проверка, существует ли логин Аргуса в базе данных
-        existing_login = await get_argus_login(message.from_user.id)
-        if existing_login:
-            await message.answer(f"У вас уже установлен логин Аргус: {existing_login}")
-        else:
-            await update_argus_login(message.from_user.id, login)
-            await message.answer(f"Логин Аргус успешно сохранен: {login}")
-        await state.finish()
-
-    except Exception as e:
-        print(f"Произошла ошибка: {e}")
-
-
-@router.callback_query(F.data == 'change_executor_to_dispatcher')
-async def change_to_dispatcher(call: CallbackQuery, state: FSMContext):
-    await state.update_data(change_role='to_dispatcher')
-    if await deadline_message(call) is False:
-        await call.message.edit_text(
-            "Введите адрес эл.почты:"
+        await message.answer_document(
+            generated_file,
+            reply_markup=btn_app_by_city()
         )
-
-        await state.set_state(Form.taking_email)
+    except TypeError:
+        await message.answer('⛔️Нет данных для вывода. Пожалуйста, подождите.')
 
 
 # Вывод кол-ва заявок по городам #
